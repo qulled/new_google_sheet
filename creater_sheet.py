@@ -74,11 +74,16 @@ def new_sheet(table_id):
 
 
 if __name__ == '__main__':
+    anti_clone = []
     cred_file = os.path.join(BASE_DIR, 'credentials.json')
-    with open(cred_file, 'r') as f:
+    with open(cred_file, 'r', encoding="utf-8") as f:
         cred = json.load(f)
     for i in cred:
         table_id = cred[i].get('table_id')
-        copy_sheets(table_id)
+        if table_id not in anti_clone and table_id != None:
+            anti_clone.append(table_id)
+            copy_sheets(table_id)
+        else:
+            continue
 #    clear_sheets_data(table_id)
 #    new_sheet(table_id)
