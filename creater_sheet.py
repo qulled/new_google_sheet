@@ -1,19 +1,17 @@
 from googleapiclient import discovery
-from oauth2client.service_account import ServiceAccountCredentials
+from google.oauth2 import service_account
 import os
 import json
+
 
 import datetime
 from dateutil import relativedelta
 
 d = datetime.date.today()
-year = d.year
 nextmonth = datetime.date.today() + relativedelta.relativedelta(months=1)
 
 CREDENTIALS_FILE = 'credentials_service.json'
-credentials = ServiceAccountCredentials.from_json_keyfile_name(CREDENTIALS_FILE,
-                                                               ['https://www.googleapis.com/auth/spreadsheets',
-                                                                'https://www.googleapis.com/auth/drive'])
+credentials = service_account.Credentials.from_service_account_file(CREDENTIALS_FILE)
 service = discovery.build('sheets', 'v4', credentials=credentials)
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -23,11 +21,12 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 def copy_sheets(table_id):
+    year = d.year
     if nextmonth.strftime("%m") == '01':
         year = d.year + 1
     requests = {
         'duplicateSheet': {
-            'sourceSheetId': 0,
+            'sourceSheetId': 11,
             'insertSheetIndex': 1,
             # 'newSheetId': f'{d.year}{d.strftime("%m")}',
             'newSheetName': f'{nextmonth.strftime("%m")}.{year}'
@@ -42,7 +41,7 @@ def copy_sheets(table_id):
 
 
 '''Очистка полей данных и дат у рабочего листа.
-   Удаление столбцов цен и статистики продаж, за исключением основных данных и столюца остатков.'''
+   Удаление столбцов цен и статистики продаж, за исключением основных данных и столбца остатков.'''
 
 
 def clear_sheets_data(table_id):
@@ -54,7 +53,7 @@ def clear_sheets_data(table_id):
     return response
 
 
-'''Создание новго листа с нужным айди.'''
+'''Создание нового листа с нужным айди.'''
 
 
 def new_sheet(table_id):
